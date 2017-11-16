@@ -29,12 +29,24 @@ function printHostInfo() {
 }
 
 function startSingleNodeInstance() {
+  var http2 = require('http2');
+  var http = require('http');
+  var fs = require('fs');
   var express = require('express');
   var mongoose = require('mongoose');
   var bodyParser = require('body-parser');
   var employeesCtrl = require('./controllers/employees_controller');
   var loaderCtrl = require('./controllers/loader');
   var app = express();
+
+  //Add http2 support
+  //var keys = path.join(__dirname, 'keys');
+  var options = {
+    key: fs.readFileSync('localhost-privkey.pem'),
+    cert: fs.readFileSync('localhost-cert.pem')
+  };
+
+  const server = http2.createSecureServer( options, app);
 
   // Connect to the database
   mongoose.connect(appConfig.db_url);
@@ -151,7 +163,7 @@ function startSingleNodeInstance() {
     process.exit(0);
   });
 
-  var server = app.listen({ host: app_host, port: port});
+  server.listen({ host: app_host, port: port});
 
 }
 
